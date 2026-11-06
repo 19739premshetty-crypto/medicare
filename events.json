@@ -1,0 +1,32 @@
+[
+    {
+        "medicine": "Medicine A",
+        "event": "delivered",
+        "timestamp": "2026-11-06T14:08:14"
+    },
+    {
+        "medicine": "Medicine A",
+        "event": "confirmed",
+        "timestamp": "2026-11-06T14:08:50"
+    },
+    {
+        "medicine": "Medicine B",
+        "event": "delivered",
+        "timestamp": "2026-11-06T14:08:50"
+    },
+    {
+        "medicine": "Medicine B",
+        "event": "skipped",
+        "timestamp": "2026-11-06T14:08:59"
+    },
+    {
+        "medicine": "Medicine C",
+        "event": "delivered",
+        "timestamp": "2026-11-06T14:08:59"
+    },
+    {
+        "medicine": "Medicine C",
+        "event": "no_response",
+        "timestamp": "2026-11-06T14:09:30"
+    }
+]
