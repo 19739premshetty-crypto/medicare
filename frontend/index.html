@@ -1,0 +1,2180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>MediCare — Health & Medication Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --blue: #168bd2;
+        --blue2: #0877bd;
+        --teal: #16b8a5;
+        --navy: #102238;
+        --ink: #203247;
+        --muted: #718096;
+        --line: #e5edf4;
+        --bg: #f4f8fb;
+        --white: #fff;
+        --green: #168653;
+        --greenbg: #e7f7ef;
+        --amber: #a96a08;
+        --amberbg: #fff5df;
+        --red: #bd4545;
+        --redbg: #fff0f0;
+        --shadow: 0 12px 34px rgba(20, 49, 76, 0.07);
+        --radius: 18px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #8dd5fa;
+        outline-offset: 2px;
+      }
+      .topbar {
+        height: 76px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 max(24px, calc((100vw - 1220px) / 2));
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        gap: 20px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.7px;
+        color: var(--navy);
+        white-space: nowrap;
+      }
+      .brandmark {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #168bd2, #16b8a5);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 7px 15px #168bd233;
+      }
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: #f3f7fa;
+        padding: 5px;
+        border-radius: 13px;
+      }
+      .nav button {
+        border: 0;
+        background: transparent;
+        color: #63768a;
+        padding: 10px 13px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .nav button.active {
+        background: white;
+        color: var(--blue2);
+        box-shadow: 0 2px 8px #1c3c5810;
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-btn,
+      .outline-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        border-radius: 11px;
+        padding: 9px 12px;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .user-mini {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #dff2ff;
+        color: #0877bd;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+      main {
+        max-width: 1220px;
+        margin: 30px auto;
+        padding: 0 24px;
+      }
+      .welcome {
+        background: linear-gradient(115deg, #102238, #183d59 68%, #087e9b);
+        border-radius: 24px;
+        padding: 30px 34px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 22px;
+        box-shadow: var(--shadow);
+      }
+      .welcome:after {
+        content: "";
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        right: 7%;
+        top: -180px;
+        background: #21c4d633;
+        box-shadow:
+          0 0 0 45px #21c4d611,
+          0 0 0 90px #21c4d609;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: #ffffff17;
+        color: #9be8df;
+        border-radius: 30px;
+        padding: 6px 11px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .welcome h1 {
+        font-size: 28px;
+        letter-spacing: -1px;
+        margin: 14px 0 5px;
+      }
+      .welcome p {
+        margin: 0;
+        color: #c5d5e1;
+        font-size: 13px;
+        max-width: 600px;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 24px 0 14px;
+        gap: 15px;
+      }
+      .section-head h2 {
+        font-size: 17px;
+        margin: 0;
+        color: var(--navy);
+        letter-spacing: -0.4px;
+      }
+      .section-head p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+      .stat-card,
+      .panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: 0 3px 12px #173d5a06;
+      }
+      .stat-card {
+        padding: 18px;
+      }
+      .stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: #e8f5fd;
+        color: #168bd2;
+        display: grid;
+        place-items: center;
+        font-size: 17px;
+      }
+      .stat-value {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--navy);
+        margin: 10px 0 2px;
+        letter-spacing: -1px;
+      }
+      .stat-note {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .positive {
+        color: var(--green);
+      }
+      .columns {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+      .panel {
+        padding: 21px;
+      }
+      .panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .panel-title h3 {
+        margin: 0;
+        font-size: 14px;
+        color: var(--navy);
+      }
+      .panel-title small {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .med-row,
+      .list-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 0;
+        border-bottom: 1px solid #eff3f6;
+      }
+      .med-row:last-child,
+      .list-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+      .med-left {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+      }
+      .med-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #edf7fd;
+        color: #168bd2;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+      }
+      .med-name {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--navy);
+      }
+      .med-meta {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .status {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        border-radius: 30px;
+        padding: 6px 9px;
+        white-space: nowrap;
+      }
+      .done {
+        background: var(--greenbg);
+        color: var(--green);
+      }
+      .due {
+        background: var(--amberbg);
+        color: var(--amber);
+      }
+      .info {
+        background: #e8f5fd;
+        color: #0877bd;
+      }
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 9px 13px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .primary {
+        background: var(--blue);
+        color: #fff;
+      }
+      .primary:hover {
+        background: var(--blue2);
+      }
+      .soft {
+        background: #edf6fc;
+        color: #0877bd;
+      }
+      .ghost {
+        background: #fff;
+        border: 1px solid var(--line);
+        color: #53677b;
+      }
+      .full {
+        width: 100%;
+        margin-top: 12px;
+      }
+      .appointment-date {
+        background: #eaf6fd;
+        color: #0877bd;
+        border-radius: 12px;
+        text-align: center;
+        padding: 9px 12px;
+        min-width: 54px;
+      }
+      .appointment-date b {
+        display: block;
+        font-size: 18px;
+        line-height: 1.1;
+      }
+      .appointment-date span {
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .appointment-info {
+        flex: 1;
+      }
+      .appointment-info b {
+        font-size: 11px;
+        display: block;
+        color: var(--navy);
+      }
+      .appointment-info span {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .notice {
+        display: flex;
+        gap: 10px;
+        background: #eef8fc;
+        border: 1px solid #d9edf8;
+        border-radius: 13px;
+        padding: 13px;
+        color: #42647b;
+        font-size: 10px;
+        margin-top: 15px;
+      }
+      .notice strong {
+        color: #0877bd;
+      }
+      .panel-page {
+        display: none;
+      }
+      .panel-page.active {
+        display: block;
+      }
+      .two-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .chart {
+        height: 190px;
+        display: flex;
+        align-items: flex-end;
+        gap: 13px;
+        padding: 12px 5px 0;
+      }
+      .chart-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        justify-content: flex-end;
+      }
+      .chart-bar {
+        width: 100%;
+        max-width: 35px;
+        background: linear-gradient(180deg, #28b5c8, #168bd2);
+        border-radius: 8px 8px 3px 3px;
+        min-height: 8px;
+      }
+      .chart-col span {
+        font-size: 9px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .chart-col b {
+        font-size: 9px;
+        color: #53677b;
+      }
+      .progress {
+        height: 8px;
+        border-radius: 10px;
+        background: #edf2f6;
+        overflow: hidden;
+        margin: 10px 0 5px;
+      }
+      .progress span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, #168bd2, #16b8a5);
+        border-radius: 10px;
+      }
+      .permission {
+        padding: 16px 0;
+        border-bottom: 1px solid #eff3f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+      }
+      .permission:last-child {
+        border: 0;
+      }
+      .permission b {
+        font-size: 12px;
+        color: var(--navy);
+      }
+      .permission p {
+        font-size: 10px;
+        color: var(--muted);
+        margin: 3px 0 0;
+      }
+      .toggle {
+        width: 43px;
+        height: 24px;
+        border: 0;
+        border-radius: 20px;
+        background: #cbd5df;
+        padding: 3px;
+        transition: 0.2s;
+        flex-shrink: 0;
+      }
+      .toggle:after {
+        content: "";
+        display: block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        transition: 0.2s;
+        box-shadow: 0 1px 3px #0002;
+      }
+      .toggle[aria-checked="true"] {
+        background: var(--blue);
+      }
+      .toggle[aria-checked="true"]:after {
+        transform: translateX(19px);
+      }
+      .caregiver-banner {
+        background: #eff8ff;
+        border: 1px solid #d8ebf8;
+        color: #37627f;
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 11px;
+        margin-bottom: 16px;
+      }
+      .reminder-item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid #eff3f6;
+      }
+      .reminder-item:last-child {
+        border: 0;
+      }
+      .time {
+        font-size: 11px;
+        font-weight: 800;
+        color: #0877bd;
+        min-width: 72px;
+      }
+      .reminder-item div:nth-child(2) {
+        flex: 1;
+      }
+      .reminder-item b {
+        display: block;
+        font-size: 11px;
+      }
+      .reminder-item small {
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: #0e2035aa;
+        backdrop-filter: blur(5px);
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+      }
+      .modal {
+        background: white;
+        width: min(430px, 100%);
+        border-radius: 20px;
+        padding: 26px;
+        box-shadow: 0 25px 80px #06182c55;
+      }
+      .modal h2 {
+        font-size: 20px;
+        margin: 12px 0 5px;
+        color: var(--navy);
+      }
+      .modal p {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 0 0 15px;
+      }
+      .role-choice {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+        background: #f7fafc;
+        border: 1px solid var(--line);
+        padding: 14px;
+        border-radius: 13px;
+        margin-top: 9px;
+        color: var(--ink);
+      }
+      .role-choice:hover {
+        border-color: #7bc8ed;
+        background: #eff8fd;
+      }
+      .role-symbol {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: #e4f4fd;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+      }
+      .role-choice b {
+        font-size: 12px;
+        display: block;
+      }
+      .role-choice small {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .toast {
+        position: fixed;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #102238;
+        color: #fff;
+        padding: 11px 17px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 700;
+        opacity: 0;
+        transition: 0.25s;
+        z-index: 20;
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .large-text {
+        font-size: 115%;
+      }
+      .large-text .nav button,
+      .large-text .btn {
+        font-size: 13px;
+      }
+      @media (max-width: 950px) {
+        .topbar {
+          height: auto;
+          flex-wrap: wrap;
+          padding: 14px 20px;
+        }
+        .nav {
+          order: 3;
+          width: 100%;
+          overflow: auto;
+        }
+        .nav button {
+          flex: 1;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 680px) {
+        main {
+          padding: 0 14px;
+          margin: 18px auto;
+        }
+        .topbar {
+          padding: 12px 14px;
+        }
+        .top-actions .user-mini {
+          display: none;
+        }
+        .welcome {
+          padding: 24px;
+        }
+        .welcome h1 {
+          font-size: 23px;
+        }
+        .columns,
+        .two-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          gap: 10px;
+        }
+        .stat-card {
+          padding: 14px;
+        }
+        .stat-value {
+          font-size: 22px;
+        }
+        .panel {
+          padding: 16px;
+        }
+        .section-head {
+          align-items: flex-start;
+        }
+        .nav button {
+          padding: 9px 11px;
+        }
+        .brand {
+          font-size: 18px;
+        }
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+      .reason-line {
+        margin: 13px 0;
+      }
+      .reason-line header {
+        position: static;
+        background: none;
+        border: 0;
+        padding: 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .reason-track {
+        height: 8px;
+        background: #edf2f6;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 7px;
+      }
+      .reason-track span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, #168bd2, #16b8a5);
+        border-radius: 20px;
+      }
+      .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid #eff3f6;
+      }
+      .settings-row:last-child {
+        border: 0;
+      }
+      .settings-row b {
+        font-size: 12px;
+      }
+      .settings-row small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+      }
+      .settings-select,
+      .settings-time {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 11px;
+      }
+      .skip-btn {
+        background: #fff4e5;
+        color: #9a5a00;
+        border: 1px solid #f3d9a9;
+      }
+      .activity-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #16b8a5;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .modal-backdrop[hidden] {
+        display: none;
+      }
+      @media (max-width: 680px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        margin: 10px 0 18px;
+      }
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 620px;
+        font-size: 11px;
+        text-align: left;
+      }
+      .report-table th {
+        background: #f3f8fb;
+        color: #526b80;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 11px;
+      }
+      .report-table td {
+        padding: 12px 11px;
+        border-bottom: 1px solid #edf2f6;
+        vertical-align: top;
+      }
+      .report-table td b {
+        color: var(--navy);
+      }
+      .report-stats {
+        grid-template-columns: repeat(4, 1fr);
+        margin: 12px 0;
+      }
+      .report-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 15px;
+      }
+      .report-detail-grid > div {
+        background: #f7fafc;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 13px;
+      }
+      .report-detail-grid b {
+        font-size: 11px;
+        color: var(--navy);
+      }
+      .report-detail-grid .small {
+        margin-top: 5px;
+        line-height: 1.7;
+      }
+      .report-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .generated-report {
+        margin-top: 15px;
+        border: 1px solid #cfe3ef;
+        border-radius: 13px;
+        padding: 16px;
+        background: #f8fcff;
+        font-size: 11px;
+        line-height: 1.7;
+      }
+      .generated-report h4 {
+        font-size: 14px;
+        color: var(--navy);
+        margin: 0 0 8px;
+      }
+      @media (max-width: 680px) {
+        .report-stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .report-detail-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        .topbar,
+        .nav,
+        .top-actions,
+        .report-actions,
+        .toast,
+        .modal-backdrop {
+          display: none !important;
+        }
+        main {
+          max-width: none;
+          margin: 0;
+          padding: 0;
+        }
+        .panel-page {
+          display: none !important;
+        }
+        #analytics {
+          display: block !important;
+        }
+        .welcome {
+          background: #fff;
+          color: #102238;
+          box-shadow: none;
+          padding: 0;
+        }
+        .welcome p {
+          color: #526b80;
+        }
+        .welcome .eyebrow {
+          color: #0877bd;
+          background: #eef8fc;
+        }
+        #prescriptionReportPanel {
+          box-shadow: none;
+          border: 0;
+        }
+        .panel {
+          break-inside: avoid;
+        }
+        .report-table {
+          min-width: 0;
+        }
+        .report-table th,
+        .report-table td {
+          font-size: 9px;
+          padding: 7px;
+        }
+        .generated-report {
+          display: block !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="modal-backdrop" id="roleModal">
+      <div class="modal">
+        <div class="brand"><span class="brandmark">✚</span>MediCare</div>
+        <h2>Welcome to your health space</h2>
+        <p>Choose how you want to access the dashboard.</p>
+        <button class="role-choice" data-role="Patient">
+          <span class="role-symbol">♡</span
+          ><span
+            ><b>Patient Portal</b
+            ><small
+              >Manage medications, appointments and health details</small
+            ></span
+          >
+        </button>
+        <button class="role-choice" data-role="Caregiver">
+          <span class="role-symbol">♧</span
+          ><span
+            ><b>Caregiver Portal</b
+            ><small
+              >View shared health updates and medication activity</small
+            ></span
+          >
+        </button>
+        <button class="role-choice" data-role="Demo">
+          <span class="role-symbol">✦</span
+          ><span
+            ><b>Explore full demo</b
+            ><small>Preview every dashboard section</small></span
+          >
+        </button>
+      </div>
+    </div>
+    <header class="topbar">
+      <div class="brand"><span class="brandmark">✚</span>MediCare</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="active" data-page="dashboard">Dashboard</button>
+        <button data-page="analytics">Analytics</button>
+        <button data-page="reminders">Reminders</button>
+        <button data-page="caregiver">Caregiver</button>
+        <button data-page="privacy">Privacy & Consent</button>
+      </nav>
+      <div class="top-actions">
+        <button class="outline-btn" id="textSize">Aa Text</button>
+        <div class="user-mini">
+          <span class="avatar">AJ</span><span id="roleLabel">PATIENT</span>
+        </div>
+        <button class="outline-btn" id="switchRole">Switch</button>
+      </div>
+    </header>
+    <main>
+      <section class="panel-page active" id="dashboard">
+        <div class="welcome">
+          <span class="eyebrow">✦ &nbsp; YOUR PERSONAL HEALTH SPACE</span>
+          <h1>Good morning, Alex 👋</h1>
+          <p>
+            Stay on top of your health. Your medication plan, appointments and
+            care team are all in one place.
+          </p>
+        </div>
+        <div class="section-head">
+          <div>
+            <h2>Your health overview</h2>
+            <p>A quick look at your health today</p>
+          </div>
+          <span class="status done">● All systems normal</span>
+        </div>
+        <div class="stats">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Blood pressure</span><span class="stat-icon">♡</span>
+            </div>
+            <div class="stat-value">120/80</div>
+            <div class="stat-note positive">Normal · Recorded today</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Heart rate</span><span class="stat-icon">⌁</span>
+            </div>
+            <div class="stat-value">
+              72 <small style="font-size: 12px">BPM</small>
+            </div>
+            <div class="stat-note positive">Within your usual range</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Today's doses</span><span class="stat-icon">✚</span>
+            </div>
+            <div class="stat-value" id="doseCount">1 / 3</div>
+            <div class="stat-note" id="doseNote">Next dose at 1:00 PM</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>7-day adherence</span><span class="stat-icon">▥</span>
+            </div>
+            <div class="stat-value">86%</div>
+            <div class="stat-note positive">↑ 4% compared with last week</div>
+          </article>
+        </div>
+        <div class="columns">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Today's medication schedule</h3>
+              <small>FRIDAY, NOV 6</small>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Vitamin D3</div>
+                  <div class="med-meta">
+                    1 tablet · After breakfast · 8:00 AM
+                  </div>
+                </div>
+              </div>
+              <span class="status done" id="vitStatus">Taken</span>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Metformin</div>
+                  <div class="med-meta">500 mg · After lunch · 1:00 PM</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <button class="btn primary dose-action" data-med="Metformin">
+                  Mark taken</button
+                ><button class="btn skip-btn skip-action" data-med="Metformin">
+                  Skip
+                </button>
+              </div>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Omega 3</div>
+                  <div class="med-meta">1 capsule · After dinner · 8:00 PM</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center">
+                <span class="status due">Upcoming</span
+                ><button class="btn skip-btn skip-action" data-med="Omega 3">
+                  Skip
+                </button>
+              </div>
+            </div>
+            <div class="notice">
+              <span>ⓘ</span
+              ><span
+                ><strong>Medication tip</strong><br />Take medicines at the
+                prescribed time. Contact your healthcare professional if you
+                have questions about a dose.</span
+              >
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Upcoming appointment</h3>
+              <button class="btn soft" data-go="reminders">View all</button>
+            </div>
+            <div class="list-row">
+              <div class="appointment-date"><b>12</b><span>Nov</span></div>
+              <div class="appointment-info">
+                <b>Comprehensive checkup</b
+                ><span>10:30 AM · Internal Medicine</span><br /><span
+                  >Dr. Sarah Jenkins</span
+                >
+              </div>
+              <span class="status info">Confirmed</span>
+            </div>
+            <div class="list-row">
+              <div class="appointment-date"><b>19</b><span>Nov</span></div>
+              <div class="appointment-info">
+                <b>Routine blood test</b><span>9:00 AM · Laboratory</span
+                ><br /><span>City Health Centre</span>
+              </div>
+              <span class="status info">Scheduled</span>
+            </div>
+            <button class="btn ghost full" data-go="reminders">
+              See reminders & appointments →
+            </button>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel-page" id="analytics">
+        <div class="welcome">
+          <span class="eyebrow">▥ &nbsp; HEALTH INSIGHTS</span>
+          <h1>Your progress, at a glance</h1>
+          <p>
+            Review medication consistency and prescription supply in one simple
+            view.
+          </p>
+        </div>
+        <div class="two-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Medication adherence</h3>
+              <small>LAST 7 DAYS</small>
+            </div>
+            <div class="chart">
+              <div class="chart-col">
+                <b>100%</b>
+                <div class="chart-bar" style="height: 100%"></div>
+                <span>Sat</span>
+              </div>
+              <div class="chart-col">
+                <b>80%</b>
+                <div class="chart-bar" style="height: 80%"></div>
+                <span>Sun</span>
+              </div>
+              <div class="chart-col">
+                <b>100%</b>
+                <div class="chart-bar" style="height: 100%"></div>
+                <span>Mon</span>
+              </div>
+              <div class="chart-col">
+                <b>60%</b>
+                <div class="chart-bar" style="height: 60%"></div>
+                <span>Tue</span>
+              </div>
+              <div class="chart-col">
+                <b>80%</b>
+                <div class="chart-bar" style="height: 80%"></div>
+                <span>Wed</span>
+              </div>
+              <div class="chart-col">
+                <b>100%</b>
+                <div class="chart-bar" style="height: 100%"></div>
+                <span>Thu</span>
+              </div>
+              <div class="chart-col">
+                <b>70%</b>
+                <div class="chart-bar" style="height: 70%"></div>
+                <span>Fri</span>
+              </div>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Prescription refill status</h3>
+              <small>SUPPLY TRACKER</small>
+            </div>
+            <div class="list-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Vitamin D3</div>
+                  <div class="med-meta">24 days of supply left</div>
+                </div>
+              </div>
+              <span class="status done">Good</span>
+            </div>
+            <div class="progress"><span style="width: 80%"></span></div>
+            <div class="list-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Metformin</div>
+                  <div class="med-meta">8 days of supply left</div>
+                </div>
+              </div>
+              <span class="status due">Refill soon</span>
+            </div>
+            <div class="progress">
+              <span style="width: 28%; background: #e5a53b"></span>
+            </div>
+            <div class="list-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Omega 3</div>
+                  <div class="med-meta">18 days of supply left</div>
+                </div>
+              </div>
+              <span class="status done">Good</span>
+            </div>
+            <div class="progress"><span style="width: 62%"></span></div>
+          </section>
+        </div>
+        <section class="panel" style="margin-top: 18px">
+          <div class="panel-title">
+            <h3>Weekly summary</h3>
+            <span class="status done">On track</span>
+          </div>
+          <div class="stats">
+            <div>
+              <div class="stat-value">18/21</div>
+              <div class="stat-note">Doses completed</div>
+            </div>
+            <div>
+              <div class="stat-value">86%</div>
+              <div class="stat-note">Adherence rate</div>
+            </div>
+            <div>
+              <div class="stat-value">2</div>
+              <div class="stat-note">Missed doses</div>
+            </div>
+            <div>
+              <div class="stat-value">+4%</div>
+              <div class="stat-note">Change from last week</div>
+            </div>
+          </div>
+        </section>
+        <div class="feature-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Why doses are missed</h3>
+              <small>BASED ON YOUR LOGS</small>
+            </div>
+            <div id="missReasons">
+              <div class="reason-line">
+                <header><span>Forgot</span><b>2</b></header>
+                <div class="reason-track">
+                  <span style="width: 100%"></span>
+                </div>
+              </div>
+              <div class="reason-line">
+                <header><span>Side effects / felt unwell</span><b>1</b></header>
+                <div class="reason-track"><span style="width: 50%"></span></div>
+              </div>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Doctor-ready summary</h3>
+              <span class="status info">Shareable</span>
+            </div>
+            <p class="small">
+              Create a simple summary of dose completion and missed-dose reasons
+              for your next appointment.
+            </p>
+            <button class="btn primary full" id="doctorReport">
+              Generate demo report
+            </button>
+            <p class="small" id="reportStatus" style="margin-top: 9px">
+              No report generated yet.
+            </p>
+          </section>
+        </div>
+
+        <section
+          class="panel"
+          style="margin-top: 18px"
+          id="prescriptionReportPanel"
+        >
+          <div class="panel-title">
+            <div>
+              <h3>Doctor's prescription & medication history report</h3>
+              <small>COMPLETE MEDICATION RECORD · DEMO DATA</small>
+            </div>
+            <span class="status info">Doctor view</span>
+          </div>
+          <p class="small">
+            A consolidated view of current prescriptions, previous medication
+            records, dose completion, missed-dose reasons and refill status. The
+            sample details below are illustrative and should be replaced with
+            the patient's verified prescription.
+          </p>
+          <div class="table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Medicine</th>
+                  <th>Prescribed dose</th>
+                  <th>Schedule</th>
+                  <th>Duration / supply</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>Vitamin D3</b></td>
+                  <td>1 tablet</td>
+                  <td>After breakfast · 8:00 AM</td>
+                  <td>Ongoing · 24 days left</td>
+                  <td><span class="status done">Active</span></td>
+                </tr>
+                <tr>
+                  <td><b>Metformin</b></td>
+                  <td>500 mg</td>
+                  <td>After lunch · 1:00 PM</td>
+                  <td>Ongoing · 8 days left</td>
+                  <td><span class="status due">Refill soon</span></td>
+                </tr>
+                <tr>
+                  <td><b>Omega 3</b></td>
+                  <td>1 capsule</td>
+                  <td>After dinner · 8:00 PM</td>
+                  <td>Ongoing · 18 days left</td>
+                  <td><span class="status done">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="section-head">
+            <div>
+              <h2>Previous medication report</h2>
+              <p>Earlier prescription and adherence history (sample entries)</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Medicine</th>
+                  <th>Recorded history</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Previous month</td>
+                  <td>Vitamin D3</td>
+                  <td>Daily dose · 27 taken · 3 missed</td>
+                  <td>Continued</td>
+                </tr>
+                <tr>
+                  <td>Previous month</td>
+                  <td>Metformin 500 mg</td>
+                  <td>Daily after lunch · 25 taken · 5 missed</td>
+                  <td>Continued; refill monitored</td>
+                </tr>
+                <tr>
+                  <td>Previous month</td>
+                  <td>Omega 3</td>
+                  <td>Daily after dinner · 28 taken · 2 missed</td>
+                  <td>Continued</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="section-head">
+            <div>
+              <h2>Missed-dose and adherence details</h2>
+              <p>Information to discuss at the next clinical appointment</p>
+            </div>
+          </div>
+          <div class="stats report-stats">
+            <div>
+              <div class="stat-value" id="reportTaken">18</div>
+              <div class="stat-note">Doses taken · sample week</div>
+            </div>
+            <div>
+              <div class="stat-value" id="reportSkipped">3</div>
+              <div class="stat-note">Doses missed / skipped</div>
+            </div>
+            <div>
+              <div class="stat-value" id="reportRate">86%</div>
+              <div class="stat-note">Adherence rate</div>
+            </div>
+            <div>
+              <div class="stat-value">3</div>
+              <div class="stat-note">Active medicines</div>
+            </div>
+          </div>
+          <div class="report-detail-grid">
+            <div>
+              <b>Missed-dose reasons</b>
+              <div id="reportReasons" class="small">
+                Forgot: 2 · Side effects: 1
+              </div>
+            </div>
+            <div>
+              <b>Refill attention</b>
+              <div class="small">
+                Metformin has 8 days of supply remaining. Review refill needs
+                with the care team.
+              </div>
+            </div>
+            <div>
+              <b>Appointments</b>
+              <div class="small">
+                12 Nov · Comprehensive checkup with Dr. Sarah Jenkins<br />19
+                Nov · Routine blood test at City Health Centre
+              </div>
+            </div>
+            <div>
+              <b>Caregiver sharing</b>
+              <div class="small">
+                Medication logs are shared only when the patient has enabled the
+                relevant consent setting.
+              </div>
+            </div>
+          </div>
+          <div class="report-actions">
+            <button class="btn primary" id="generateFullReport">
+              Generate complete report
+            </button>
+            <button class="btn ghost" id="printFullReport">
+              Print / Save as PDF
+            </button>
+          </div>
+          <p class="small" id="fullReportStatus" aria-live="polite">
+            Report not generated yet. Generate the report to refresh the summary
+            using the current demo dose log.
+          </p>
+          <div id="generatedReport" class="generated-report" hidden></div>
+        </section>
+      </section>
+
+      <section class="panel-page" id="reminders">
+        <div class="welcome">
+          <span class="eyebrow">◷ &nbsp; STAY ON SCHEDULE</span>
+          <h1>Reminders & appointments</h1>
+          <p>Keep track of medication times and upcoming visits.</p>
+        </div>
+        <div class="two-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Today's reminders</h3>
+              <span class="status info">3 reminders</span>
+            </div>
+            <div class="reminder-item">
+              <span class="time">8:00 AM</span><span class="med-icon">💊</span>
+              <div>
+                <b>Vitamin D3</b><small>After breakfast · Completed</small>
+              </div>
+              <span class="status done">Done</span>
+            </div>
+            <div class="reminder-item">
+              <span class="time">1:00 PM</span><span class="med-icon">💊</span>
+              <div>
+                <b>Metformin 500 mg</b><small>After lunch · Daily</small>
+              </div>
+              <span class="status due">Due</span>
+            </div>
+            <div class="reminder-item">
+              <span class="time">8:00 PM</span><span class="med-icon">💊</span>
+              <div><b>Omega 3</b><small>After dinner · Daily</small></div>
+              <span class="status info">Upcoming</span>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Reminder preferences</h3>
+              <span class="status info">Personalized</span>
+            </div>
+            <div class="settings-row">
+              <div>
+                <b>Reminder channel</b><small>Choose where alerts arrive</small>
+              </div>
+              <select class="settings-select" id="reminderChannel">
+                <option>App notification</option>
+                <option>WhatsApp</option>
+                <option>Voice call</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div>
+                <b>Reminder frequency</b
+                ><small>How often to repeat an alert</small>
+              </div>
+              <select class="settings-select" id="reminderFrequency">
+                <option>Once</option>
+                <option selected>Every 10 minutes</option>
+                <option>One follow-up</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><b>Quiet hours</b><small>Pause alerts overnight</small></div>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 7px;
+                  font-size: 10px;
+                "
+                ><input type="checkbox" id="quietHours" checked />
+                Enabled</label
+              >
+            </div>
+            <div class="settings-row">
+              <div><b>Quiet time</b><small>From / until</small></div>
+              <span
+                ><input
+                  class="settings-time"
+                  type="time"
+                  id="quietFrom"
+                  value="22:00" /><input
+                  class="settings-time"
+                  type="time"
+                  id="quietUntil"
+                  value="07:00"
+              /></span>
+            </div>
+            <button class="btn primary full" id="saveReminder">
+              Save reminder settings
+            </button>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Appointment calendar</h3>
+              <small>NOVEMBER 2026</small>
+            </div>
+            <div class="list-row">
+              <div class="appointment-date"><b>12</b><span>Nov</span></div>
+              <div class="appointment-info">
+                <b>Comprehensive checkup</b
+                ><span>10:30 AM · Dr. Sarah Jenkins</span>
+              </div>
+              <span class="status info">Confirmed</span>
+            </div>
+            <div class="list-row">
+              <div class="appointment-date"><b>19</b><span>Nov</span></div>
+              <div class="appointment-info">
+                <b>Routine blood test</b
+                ><span>9:00 AM · City Health Centre</span>
+              </div>
+              <span class="status info">Scheduled</span>
+            </div>
+            <div class="list-row">
+              <div class="appointment-date"><b>26</b><span>Nov</span></div>
+              <div class="appointment-info">
+                <b>Follow-up consultation</b
+                ><span>11:15 AM · Dr. Sarah Jenkins</span>
+              </div>
+              <span class="status info">Scheduled</span>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel-page" id="caregiver">
+        <div class="welcome">
+          <span class="eyebrow">♧ &nbsp; CONNECTED CARE</span>
+          <h1>Caregiver overview</h1>
+          <p>
+            A clear view of the health updates the patient has chosen to share.
+          </p>
+        </div>
+        <div class="caregiver-banner">
+          ⓘ <b> View-only access.</b> You can review shared information, but
+          only the patient can change health records and sharing permissions.
+        </div>
+        <div class="stats">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Patient</span><span class="stat-icon">♡</span>
+            </div>
+            <div class="stat-value" style="font-size: 20px">Alex Johnson</div>
+            <div class="stat-note">Connected patient</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Today's doses</span><span class="stat-icon">✚</span>
+            </div>
+            <div class="stat-value">1 / 3</div>
+            <div class="stat-note">1 dose completed</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Adherence</span><span class="stat-icon">▥</span>
+            </div>
+            <div class="stat-value">86%</div>
+            <div class="stat-note positive">Weekly average</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Next appointment</span><span class="stat-icon">▦</span>
+            </div>
+            <div class="stat-value">Nov 12</div>
+            <div class="stat-note">10:30 AM</div>
+          </article>
+        </div>
+        <div class="two-grid" style="margin-top: 18px">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Medication activity</h3>
+              <span class="status info">Shared data</span>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Vitamin D3</div>
+                  <div class="med-meta">8:00 AM · After breakfast</div>
+                </div>
+              </div>
+              <span class="status done">Taken</span>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Metformin</div>
+                  <div class="med-meta">1:00 PM · After lunch</div>
+                </div>
+              </div>
+              <span class="status due">Due</span>
+            </div>
+            <div class="med-row">
+              <div class="med-left">
+                <span class="med-icon">💊</span>
+                <div>
+                  <div class="med-name">Omega 3</div>
+                  <div class="med-meta">8:00 PM · After dinner</div>
+                </div>
+              </div>
+              <span class="status info">Upcoming</span>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Shared health summary</h3>
+              <span class="status done">Authorized</span>
+            </div>
+            <div class="list-row">
+              <div>
+                <div class="med-name">Blood pressure</div>
+                <div class="med-meta">120/80 mmHg · Recorded today</div>
+              </div>
+              <span class="status done">Normal</span>
+            </div>
+            <div class="list-row">
+              <div>
+                <div class="med-name">Resting heart rate</div>
+                <div class="med-meta">72 BPM · Recorded today</div>
+              </div>
+              <span class="status done">Normal</span>
+            </div>
+            <div class="notice">
+              🔒
+              <span
+                >Only information approved by the patient is visible in this
+                caregiver view.</span
+              >
+            </div>
+          </section>
+        </div>
+        <section class="panel" style="margin-top: 18px">
+          <div class="panel-title">
+            <h3>Caregiver alerts & recent activity</h3>
+            <span class="status info">Shared updates</span>
+          </div>
+          <div class="list-row">
+            <div>
+              <div class="med-name">
+                <span class="activity-dot"></span>Medication reminder pending
+              </div>
+              <div class="med-meta">
+                Metformin · 1:00 PM · Awaiting patient response
+              </div>
+            </div>
+            <span class="status due">Action needed</span>
+          </div>
+          <div class="list-row">
+            <div>
+              <div class="med-name">
+                <span class="activity-dot"></span>Last health update
+              </div>
+              <div class="med-meta">Patient dashboard updated today</div>
+            </div>
+            <span class="status done">Current</span>
+          </div>
+          <p class="small" style="margin-top: 12px">
+            Caregiver access is view-only. Only information approved in Privacy
+            & Consent is shown.
+          </p>
+        </section>
+      </section>
+
+      <section class="panel-page" id="privacy">
+        <div class="welcome">
+          <span class="eyebrow">♢ &nbsp; YOUR DATA, YOUR CHOICE</span>
+          <h1>Privacy & consent settings</h1>
+          <p>
+            Choose which parts of your health information can be viewed by your
+            authorized caregiver.
+          </p>
+        </div>
+        <div class="two-grid">
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Caregiver permissions</h3>
+              <span class="status done" id="permissionState"
+                >Access active</span
+              >
+            </div>
+            <div class="permission">
+              <div>
+                <b>Health records</b>
+                <p>Share lab values and vital readings.</p>
+              </div>
+              <button
+                class="toggle"
+                role="switch"
+                aria-checked="true"
+                aria-label="Health records permission"
+              ></button>
+            </div>
+            <div class="permission">
+              <div>
+                <b>Medication logs</b>
+                <p>Share dose completion and medication history.</p>
+              </div>
+              <button
+                class="toggle"
+                role="switch"
+                aria-checked="true"
+                aria-label="Medication logs permission"
+              ></button>
+            </div>
+            <div class="permission">
+              <div>
+                <b>Appointments</b>
+                <p>Share upcoming visits and appointment details.</p>
+              </div>
+              <button
+                class="toggle"
+                role="switch"
+                aria-checked="true"
+                aria-label="Appointments permission"
+              ></button>
+            </div>
+            <div class="permission">
+              <div>
+                <b>Health reminders</b>
+                <p>Allow caregiver to see medication reminders.</p>
+              </div>
+              <button
+                class="toggle"
+                role="switch"
+                aria-checked="false"
+                aria-label="Health reminders permission"
+              ></button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-title">
+              <h3>Authorized caregiver</h3>
+              <span class="status info">Connected</span>
+            </div>
+            <div class="list-row">
+              <div class="med-left">
+                <span class="avatar">MJ</span>
+                <div>
+                  <div class="med-name">Morgan Johnson</div>
+                  <div class="med-meta">Family caregiver · View-only</div>
+                </div>
+              </div>
+              <span class="status done">Active</span>
+            </div>
+            <div class="notice">
+              🔐
+              <span
+                ><strong>Your privacy matters.</strong><br />You can update
+                these permissions at any time. Changes apply to the caregiver's
+                shared view.</span
+              >
+            </div>
+            <button class="btn ghost full" id="revoke">
+              Revoke caregiver access
+            </button>
+            <div class="notice" style="margin-top: 12px">
+              🕒
+              <span
+                ><strong>Access activity</strong><br />Permission changes are
+                reflected in the caregiver view. You remain in control of shared
+                records, medication logs, appointments and reminders.</span
+              >
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div class="modal-backdrop" id="skipModal" hidden>
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="skipHeading"
+      >
+        <h2 id="skipHeading">Why did you skip this dose?</h2>
+        <p>
+          Select the reason so your care team can understand what makes
+          medication difficult.
+        </p>
+        <div id="skipChoices" style="display: grid; gap: 8px">
+          <button class="role-choice" data-reason="Forgot">I forgot</button>
+          <button class="role-choice" data-reason="Side effects">
+            Side effects / felt unwell
+          </button>
+          <button class="role-choice" data-reason="Ran out">
+            I ran out of medicine
+          </button>
+          <button class="role-choice" data-reason="Felt fine">
+            I felt fine
+          </button>
+          <button class="role-choice" data-reason="Away from home">
+            I was away from home
+          </button>
+          <button class="role-choice" data-reason="Other">Other reason</button>
+        </div>
+        <button class="btn ghost full" id="cancelSkip">Cancel</button>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      const pages = [...document.querySelectorAll(".panel-page")],
+        tabs = [...document.querySelectorAll("[data-page]")];
+      const doseState = {
+        "Vitamin D3": "taken",
+        Metformin: "pending",
+        "Omega 3": "upcoming",
+      };
+      const skippedReasons = [];
+      const doseEvents = [
+        {
+          medicine: "Vitamin D3",
+          status: "taken",
+          time: "8:00 AM",
+          date: "Nov 6",
+        },
+        {
+          medicine: "Metformin",
+          status: "pending",
+          time: "1:00 PM",
+          date: "Nov 6",
+        },
+        {
+          medicine: "Omega 3",
+          status: "upcoming",
+          time: "8:00 PM",
+          date: "Nov 6",
+        },
+      ];
+      let selectedMedicine = "";
+      async function saveDose(medicine, status, reason = "") {
+        const medicinesResponse = await fetch("/api/medicines");
+        if (!medicinesResponse.ok) throw new Error("Could not load medicines");
+
+        const medicines = await medicinesResponse.json();
+        const selected = medicines.find((m) => m.name === medicine);
+
+        if (!selected) throw new Error("Medicine not found: " + medicine);
+
+        const response = await fetch("/api/doses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            medicine_id: selected.id,
+            status: status,
+            reason: reason,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Could not save dose");
+        return response.json();
+      }
+      function showPage(id) {
+        pages.forEach((p) => p.classList.toggle("active", p.id === id));
+        tabs.forEach((t) =>
+          t.classList.toggle("active", t.dataset.page === id),
+        );
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      tabs.forEach((t) =>
+        t.addEventListener("click", () => showPage(t.dataset.page)),
+      );
+      document
+        .querySelectorAll("[data-go]")
+        .forEach((b) =>
+          b.addEventListener("click", () => showPage(b.dataset.go)),
+        );
+      const modal = document.getElementById("roleModal"),
+        roleLabel = document.getElementById("roleLabel");
+      document.querySelectorAll("[data-role]").forEach((b) =>
+        b.addEventListener("click", () => {
+          const role = b.dataset.role;
+          roleLabel.textContent =
+            role === "Demo" ? "DEMO MODE" : role.toUpperCase();
+          modal.style.display = "none";
+          showToast(
+            role === "Caregiver"
+              ? "Caregiver view selected"
+              : "Welcome to MediCare",
+          );
+          if (role === "Caregiver") showPage("caregiver");
+        }),
+      );
+      document
+        .getElementById("switchRole")
+        .addEventListener("click", () => (modal.style.display = "grid"));
+      document.getElementById("textSize").addEventListener("click", (e) => {
+        document.body.classList.toggle("large-text");
+        e.currentTarget.textContent = document.body.classList.contains(
+          "large-text",
+        )
+          ? "Aa Normal"
+          : "Aa Text";
+      });
+      function showToast(message) {
+        const el = document.getElementById("toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => el.classList.remove("show"), 2300);
+      }
+      function updateDoseUI(medicine, status, reason = "") {
+        const row = [...document.querySelectorAll(".med-row")].find((r) =>
+          r.textContent.includes(medicine),
+        );
+        if (!row) return;
+        const old = row.querySelector(".dose-action,.skip-action,.status");
+        if (status === "taken") {
+          doseEvents.push({
+            medicine,
+            status,
+            time: "Updated just now",
+            date: "Today",
+          });
+          const actions = row.querySelector('div[style*="display:flex"]');
+          if (actions)
+            actions.innerHTML = '<span class="status done">Taken</span>';
+          else if (old)
+            old.outerHTML = '<span class="status done">Taken</span>';
+        }
+        if (status === "skipped") {
+          doseEvents.push({
+            medicine,
+            status,
+            reason,
+            time: "Updated just now",
+            date: "Today",
+          });
+          const actions = row.querySelector('div[style*="display:flex"]');
+          if (actions)
+            actions.innerHTML =
+              '<span class="status" style="background:#fff0f0;color:#bd4545">Skipped</span>';
+          else if (old)
+            old.outerHTML =
+              '<span class="status" style="background:#fff0f0;color:#bd4545">Skipped</span>';
+        }
+        if (reason) {
+          const meta = row.querySelector(".med-meta");
+          if (meta) meta.textContent += " · Reason: " + reason;
+        }
+      }
+      document.querySelectorAll(".dose-action").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const med = btn.dataset.med;
+
+          try {
+            await saveDose(med, "taken");
+
+            doseState[med] = "taken";
+            updateDoseUI(med, "taken");
+            document.getElementById("doseCount").textContent = "2 / 3";
+            document.getElementById("doseNote").textContent =
+              "Next dose at 8:00 PM";
+            showToast(med + " saved successfully");
+          } catch (error) {
+            showToast(error.message);
+          }
+        });
+      });
+      const skipModal = document.getElementById("skipModal");
+      document.querySelectorAll(".skip-action").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          selectedMedicine = btn.dataset.med;
+          skipModal.hidden = false;
+        }),
+      );
+      document
+        .getElementById("cancelSkip")
+        .addEventListener("click", () => (skipModal.hidden = true));
+      document.querySelectorAll("[data-reason]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const reason = btn.dataset.reason;
+
+          try {
+            await saveDose(selectedMedicine, "missed", reason);
+
+            doseState[selectedMedicine] = "skipped";
+            skippedReasons.push({
+              medicine: selectedMedicine,
+              reason: reason,
+            });
+
+            updateDoseUI(selectedMedicine, "skipped", reason);
+            skipModal.hidden = true;
+            renderMissReasons();
+            showToast("Skipped dose saved successfully");
+          } catch (error) {
+            showToast(error.message);
+          }
+        });
+      });
+      function renderMissReasons() {
+        const counts = {
+          Forgot: 2,
+          "Side effects": 1,
+          "Ran out": 0,
+          "Felt fine": 0,
+          "Away from home": 0,
+          Other: 0,
+        };
+        skippedReasons.forEach(
+          (x) => (counts[x.reason] = (counts[x.reason] || 0) + 1),
+        );
+        const max = Math.max(1, ...Object.values(counts));
+        document.getElementById("missReasons").innerHTML = Object.entries(
+          counts,
+        )
+          .filter(([k, v]) => v > 0)
+          .map(
+            ([k, v]) =>
+              '<div class="reason-line"><header><span>' +
+              k +
+              "</span><b>" +
+              v +
+              '</b></header><div class="reason-track"><span style="width:' +
+              Math.round((v / max) * 100) +
+              '%"></span></div></div>',
+          )
+          .join("");
+      }
+      document.querySelectorAll(".toggle").forEach((toggle) =>
+        toggle.addEventListener("click", () => {
+          const on = toggle.getAttribute("aria-checked") === "true";
+          toggle.setAttribute("aria-checked", String(!on));
+          const all = [...document.querySelectorAll(".toggle")].every(
+            (t) => t.getAttribute("aria-checked") === "true",
+          );
+          document.getElementById("permissionState").textContent = all
+            ? "Full access"
+            : "Custom access";
+          showToast("Sharing preference updated");
+        }),
+      );
+      document.getElementById("revoke").addEventListener("click", () => {
+        if (
+          confirm(
+            "Revoke caregiver access? This demo will turn off all sharing permissions.",
+          )
+        ) {
+          document
+            .querySelectorAll(".toggle")
+            .forEach((t) => t.setAttribute("aria-checked", "false"));
+          document.getElementById("permissionState").textContent =
+            "Access revoked";
+          showToast("Caregiver access revoked in this demo");
+        }
+      });
+      document.getElementById("saveReminder").addEventListener("click", () => {
+        const channel = document.getElementById("reminderChannel").value;
+        const frequency = document.getElementById("reminderFrequency").value;
+        const quiet = document.getElementById("quietHours").checked;
+        showToast(
+          "Reminder settings saved: " +
+            channel +
+            " · " +
+            frequency +
+            (quiet ? " · Quiet hours on" : ""),
+        );
+      });
+
+      function generateCompleteDoctorReport() {
+        const taken =
+          18 + doseEvents.filter((x) => x.status === "taken").length - 1;
+        const skipped =
+          3 + doseEvents.filter((x) => x.status === "skipped").length;
+        const rate = Math.round((taken / (taken + skipped)) * 100);
+        const reasonCounts = {
+          Forgot: 2,
+          "Side effects": 1,
+          "Ran out": 0,
+          "Felt fine": 0,
+          "Away from home": 0,
+          Other: 0,
+        };
+        skippedReasons.forEach(
+          (x) => (reasonCounts[x.reason] = (reasonCounts[x.reason] || 0) + 1),
+        );
+        const reasons =
+          Object.entries(reasonCounts)
+            .filter(([, n]) => n > 0)
+            .map(([k, n]) => k + ": " + n)
+            .join(" · ") || "No missed-dose reasons recorded";
+        document.getElementById("reportTaken").textContent = taken;
+        document.getElementById("reportSkipped").textContent = skipped;
+        document.getElementById("reportRate").textContent = rate + "%";
+        document.getElementById("reportReasons").textContent = reasons;
+        const eventRows = doseEvents
+          .map(
+            (e) =>
+              "<tr><td>" +
+              e.date +
+              "</td><td>" +
+              e.time +
+              "</td><td>" +
+              e.medicine +
+              "</td><td>" +
+              e.status +
+              (e.reason ? " · " + e.reason : "") +
+              "</td></tr>",
+          )
+          .join("");
+        document.getElementById("generatedReport").innerHTML =
+          "<h4>MediCare — Consolidated Doctor Report</h4><p><b>Report type:</b> Demo medication and adherence history · <b>Generated:</b> " +
+          new Date().toLocaleString() +
+          "</p><p><b>Weekly adherence:</b> " +
+          rate +
+          "% · <b>Recorded taken:</b> " +
+          taken +
+          " · <b>Missed / skipped:</b> " +
+          skipped +
+          "</p><p><b>Current prescription:</b> Vitamin D3 (1 tablet, after breakfast, 8:00 AM); Metformin (500 mg, after lunch, 1:00 PM); Omega 3 (1 capsule, after dinner, 8:00 PM).</p><p><b>Previous report:</b> Previous-month sample history — Vitamin D3: 27 taken / 3 missed; Metformin 500 mg: 25 taken / 5 missed; Omega 3: 28 taken / 2 missed.</p><p><b>Missed-dose reasons:</b> " +
+          reasons +
+          '</p><h4>Recent dose activity</h4><div class="table-wrap"><table class="report-table"><thead><tr><th>Date</th><th>Time</th><th>Medicine</th><th>Result / reason</th></tr></thead><tbody>' +
+          eventRows +
+          "</tbody></table></div><p><b>Refill note:</b> Metformin has 8 days of supply remaining. Review refill needs with the care team.</p><p><b>Important:</b> This is a demonstration report containing sample data, not a verified prescription or medical recommendation. Confirm all medicines, doses, dates and history against the prescribing clinician’s records.</p>";
+        document.getElementById("generatedReport").hidden = false;
+        document.getElementById("fullReportStatus").textContent =
+          "Complete demo report generated. Use Print / Save as PDF to keep a copy.";
+      }
+      document
+        .getElementById("generateFullReport")
+        .addEventListener("click", () => {
+          generateCompleteDoctorReport();
+          showToast("Complete doctor report generated");
+        });
+      document
+        .getElementById("printFullReport")
+        .addEventListener("click", () => {
+          if (document.getElementById("generatedReport").hidden)
+            generateCompleteDoctorReport();
+          window.print();
+        });
+
+      document.getElementById("doctorReport").addEventListener("click", () => {
+        const taken = Object.values(doseState).filter(
+          (x) => x === "taken",
+        ).length;
+        const skipped = Object.values(doseState).filter(
+          (x) => x === "skipped",
+        ).length;
+        document.getElementById("reportStatus").textContent =
+          "Demo report ready: " +
+          taken +
+          " doses taken, " +
+          skipped +
+          " skipped. You can discuss these results with your healthcare professional.";
+        showToast("Doctor summary generated");
+      });
+    </script>
+  </body>
+</html>

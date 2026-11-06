@@ -1,7 +1,7 @@
 from itertools import count
 from datetime import datetime, timedelta
 import time
-from reminder_engine import send_reminder, log_event
+from app.reminders.reminder_engine import send_reminder, log_event
 
 counter = count()
 import heapq
