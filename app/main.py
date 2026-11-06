@@ -9,11 +9,15 @@ from pydantic import BaseModel, Field
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
+from datetime import date, timedelta
+from fastapi.responses import Response
+from app.pdf_generator import generate_doctor_pdf
 
 from app.database import get_connection
 from app.analytics import (
     calculate_adherence,
     analyze_missed_doses,
+    predict_refill,
 )
 
 app = FastAPI(
@@ -64,6 +68,11 @@ class DoseRequest(BaseModel):
     reason: str = ""
 
 
+class StockRequest(BaseModel):
+    quantity_remaining: int = Field(ge=0)
+    daily_doses: float = Field(gt=0)
+
+
 @app.get("/")
 def home():
     frontend_path = Path(__file__).resolve().parent.parent / "frontend" / "index.html"
@@ -112,6 +121,67 @@ def delete_medicine(medicine_id: int):
             )
 
     return {"message": "Medicine deleted successfully"}
+
+
+@app.put("/api/medicines/{medicine_id}/stock")
+def update_medicine_stock(medicine_id: int, stock: StockRequest):
+    with database() as connection:
+        cursor = connection.execute(
+            """
+            UPDATE medicines
+            SET quantity_remaining = ?, daily_doses = ?
+            WHERE id = ?
+            """,
+            (
+                stock.quantity_remaining,
+                stock.daily_doses,
+                medicine_id,
+            ),
+        )
+
+        if cursor.rowcount == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Medicine not found",
+            )
+
+    return {"message": "Medicine stock updated successfully"}
+
+
+@app.get("/api/refill-status")
+def get_refill_status():
+    with database() as connection:
+        medicines = connection.execute("""
+            SELECT id, name, quantity_remaining, daily_doses
+            FROM medicines
+            ORDER BY id
+            """).fetchall()
+
+    results = []
+
+    for medicine in medicines:
+        item = dict(medicine)
+
+        if item["quantity_remaining"] is None or item["daily_doses"] is None:
+            result = {
+                "days_remaining": None,
+                "refill_status": "Stock not entered",
+            }
+        else:
+            result = predict_refill(
+                item["quantity_remaining"],
+                item["daily_doses"],
+            )
+
+        results.append(
+            {
+                "id": item["id"],
+                "name": item["name"],
+                **result,
+            }
+        )
+
+    return results
 
 
 @app.post("/api/doses")
@@ -182,3 +252,70 @@ def get_analytics():
         "adherence_percentage": calculate_adherence(records),
         "missed_doses": analyze_missed_doses(records),
     }
+
+
+@app.get("/api/weekly-adherence")
+def get_weekly_adherence():
+    today = date.today()
+    start_date = today - timedelta(days=6)
+
+    with database() as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                date(date) AS day,
+                SUM(CASE WHEN status = 'taken' THEN 1 ELSE 0 END) AS taken,
+                SUM(CASE WHEN status = 'missed' THEN 1 ELSE 0 END) AS missed
+            FROM dose_logs
+            WHERE date(date) BETWEEN ? AND ?
+            GROUP BY date(date)
+        """,
+            (start_date.isoformat(), today.isoformat()),
+        ).fetchall()
+
+    records = {row["day"]: dict(row) for row in rows}
+
+    days = []
+
+    for offset in range(7):
+        current = start_date + timedelta(days=offset)
+        record = records.get(current.isoformat(), {})
+
+        taken = record.get("taken", 0) or 0
+        missed = record.get("missed", 0) or 0
+        total = taken + missed
+
+        percentage = round((taken / total) * 100) if total else 0
+
+        days.append(
+            {
+                "day": current.strftime("%a"),
+                "date": current.isoformat(),
+                "taken": taken,
+                "missed": missed,
+                "adherence": percentage,
+            }
+        )
+
+    return {"days": days}
+
+@app.get("/api/doctor-report")
+def download_doctor_report():
+    analytics = get_analytics()
+    refill_data = get_refill_status()
+
+    insights = {
+        "adherence_percentage": analytics["adherence_percentage"],
+        "missed_doses": analytics["missed_doses"],
+        "refill": refill_data,
+    }
+
+    pdf = generate_doctor_pdf(insights)
+
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'attachment; filename="medicare-doctor-report.pdf"'
+        },
+    )

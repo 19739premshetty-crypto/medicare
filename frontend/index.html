@@ -1171,41 +1171,9 @@
               <h3>Prescription refill status</h3>
               <small>SUPPLY TRACKER</small>
             </div>
-            <div class="list-row">
-              <div class="med-left">
-                <span class="med-icon">💊</span>
-                <div>
-                  <div class="med-name">Vitamin D3</div>
-                  <div class="med-meta">Illustrative estimate — not live inventory data</div>
-                </div>
-              </div>
-              <span class="status done">Good</span>
+            <div id="refill-list">
+              <p>Loading refill information...</p>
             </div>
-            <div class="progress"><span style="width: 80%"></span></div>
-            <div class="list-row">
-              <div class="med-left">
-                <span class="med-icon">💊</span>
-                <div>
-                  <div class="med-name">Metformin</div>
-                  <div class="med-meta">Illustrative estimate — not live inventory data</div>
-                </div>
-              </div>
-              <span class="status due">Refill soon</span>
-            </div>
-            <div class="progress">
-              <span style="width: 28%; background: #e5a53b"></span>
-            </div>
-            <div class="list-row">
-              <div class="med-left">
-                <span class="med-icon">💊</span>
-                <div>
-                  <div class="med-name">Omega 3</div>
-                  <div class="med-meta">1Illustrative estimate — not live inventory data</div>
-                </div>
-              </div>
-              <span class="status done">Good</span>
-            </div>
-            <div class="progress"><span style="width: 62%"></span></div>
           </section>
         </div>
         <section class="panel" style="margin-top: 18px">
@@ -2108,77 +2076,197 @@
         );
       });
 
-      function generateCompleteDoctorReport() {
-        const taken =
-          18 + doseEvents.filter((x) => x.status === "taken").length - 1;
-        const skipped =
-          3 + doseEvents.filter((x) => x.status === "skipped").length;
-        const rate = Math.round((taken / (taken + skipped)) * 100);
-        const reasonCounts = {
-          Forgot: 2,
-          "Side effects": 1,
-          "Ran out": 0,
-          "Felt fine": 0,
-          "Away from home": 0,
-          Other: 0,
-        };
-        skippedReasons.forEach(
-          (x) => (reasonCounts[x.reason] = (reasonCounts[x.reason] || 0) + 1),
-        );
-        const reasons =
-          Object.entries(reasonCounts)
-            .filter(([, n]) => n > 0)
-            .map(([k, n]) => k + ": " + n)
-            .join(" · ") || "No missed-dose reasons recorded";
-        document.getElementById("reportTaken").textContent = taken;
-        document.getElementById("reportSkipped").textContent = skipped;
-        document.getElementById("reportRate").textContent = rate + "%";
-        document.getElementById("reportReasons").textContent = reasons;
-        const eventRows = doseEvents
-          .map(
-            (e) =>
-              "<tr><td>" +
-              e.date +
-              "</td><td>" +
-              e.time +
-              "</td><td>" +
-              e.medicine +
-              "</td><td>" +
-              e.status +
-              (e.reason ? " · " + e.reason : "") +
-              "</td></tr>",
-          )
-          .join("");
-        document.getElementById("generatedReport").innerHTML =
-          "<h4>MediCare — Consolidated Doctor Report</h4><p><b>Report type:</b> Demo medication and adherence history · <b>Generated:</b> " +
-          new Date().toLocaleString() +
-          "</p><p><b>Weekly adherence:</b> " +
-          rate +
-          "% · <b>Recorded taken:</b> " +
-          taken +
-          " · <b>Missed / skipped:</b> " +
-          skipped +
-          "</p><p><b>Current prescription:</b> Vitamin D3 (1 tablet, after breakfast, 8:00 AM); Metformin (500 mg, after lunch, 1:00 PM); Omega 3 (1 capsule, after dinner, 8:00 PM).</p><p><b>Previous report:</b> Previous-month sample history — Vitamin D3: 27 taken / 3 missed; Metformin 500 mg: 25 taken / 5 missed; Omega 3: 28 taken / 2 missed.</p><p><b>Missed-dose reasons:</b> " +
-          reasons +
-          '</p><h4>Recent dose activity</h4><div class="table-wrap"><table class="report-table"><thead><tr><th>Date</th><th>Time</th><th>Medicine</th><th>Result / reason</th></tr></thead><tbody>' +
-          eventRows +
-          "</tbody></table></div><p><b>Refill note:</b> Metformin has 8 days of supply remaining. Review refill needs with the care team.</p><p><b>Important:</b> This is a demonstration report containing sample data, not a verified prescription or medical recommendation. Confirm all medicines, doses, dates and history against the prescribing clinician’s records.</p>";
-        document.getElementById("generatedReport").hidden = false;
-        document.getElementById("fullReportStatus").textContent =
-          "Complete demo report generated. Use Print / Save as PDF to keep a copy.";
+      async function generateCompleteDoctorReport() {
+        const report = document.getElementById("generatedReport");
+        const status = document.getElementById("fullReportStatus");
+
+        status.textContent = "Loading live report data...";
+
+        try {
+          const [analyticsResponse, historyResponse, refillResponse] =
+            await Promise.all([
+              fetch("/api/analytics"),
+              fetch("/api/dose-history"),
+              fetch("/api/refill-status"),
+            ]);
+
+          if (
+            !analyticsResponse.ok ||
+            !historyResponse.ok ||
+            !refillResponse.ok
+          ) {
+            throw new Error("Unable to load report data");
+          }
+
+          const analytics = await analyticsResponse.json();
+          const history = await historyResponse.json();
+          const refills = await refillResponse.json();
+
+          const missed = analytics.missed_doses;
+          const taken = history.filter((x) => x.status === "taken").length;
+          const missedCount = history.filter(
+            (x) => x.status === "missed",
+          ).length;
+
+          // Escape database values before inserting them into HTML.
+          const escapeHTML = (value) =>
+            String(value ?? "Not available").replace(
+              /[&<>"']/g,
+              (char) =>
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[char],
+            );
+
+          document.getElementById("reportTaken").textContent = taken;
+          document.getElementById("reportSkipped").textContent = missedCount;
+          document.getElementById("reportRate").textContent =
+            analytics.adherence_percentage + "%";
+
+          const reasons =
+            Object.entries(missed.reason_breakdown || {})
+              .filter(([, count]) => count > 0)
+              .map(([reason, count]) => `${escapeHTML(reason)}: ${count}`)
+              .join(" · ") || "No missed-dose reasons recorded";
+
+          document.getElementById("reportReasons").textContent = reasons;
+
+          const medicineRows = refills
+            .map(
+              (medicine) => `
+      <tr>
+        <td>${escapeHTML(medicine.name)}</td>
+        <td>${medicine.days_remaining ?? "Not entered"}</td>
+        <td>${escapeHTML(medicine.refill_status)}</td>
+      </tr>
+    `,
+            )
+            .join("");
+
+          const eventRows = history
+            .map(
+              (event) => `
+      <tr>
+        <td>${escapeHTML(event.date)}</td>
+        <td>${escapeHTML(event.medicine)}</td>
+        <td>${escapeHTML(event.status)}</td>
+        <td>${escapeHTML(event.reason || "—")}</td>
+      </tr>
+    `,
+            )
+            .join("");
+
+          report.innerHTML = `
+      <h4>MediCare — Consolidated Doctor Report</h4>
+
+      <p>
+        <b>Report type:</b> Live database report ·
+        <b>Generated:</b> ${escapeHTML(new Date().toLocaleString())}
+      </p>
+
+      <h4>Medication Adherence Summary</h4>
+
+      <p>
+        <b>Adherence:</b>
+        ${escapeHTML(analytics.adherence_percentage)}%
+        · <b>Taken:</b> ${taken}
+        · <b>Missed:</b> ${missedCount}
+      </p>
+
+      <p>
+        <b>Total missed doses:</b>
+        ${missed.total_missed}
+      </p>
+
+      <p>
+        <b>Most missed medicine:</b>
+        ${escapeHTML(missed.most_missed_medicine)}
+      </p>
+
+      <p>
+        <b>Common missed-dose reason:</b>
+        ${escapeHTML(missed.common_reason)}
+      </p>
+
+      <p><b>Missed-dose reasons:</b> ${reasons}</p>
+
+      <h4>Medicine Refill Overview</h4>
+
+      <div class="table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Days remaining</th>
+              <th>Refill status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${medicineRows || "<tr><td colspan='3'>No medicines found</td></tr>"}
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Recorded Dose Activity</h4>
+
+      <div class="table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Medicine</th>
+              <th>Status</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${eventRows || "<tr><td colspan='4'>No dose activity recorded</td></tr>"}
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <b>Important:</b> Demonstration report generated from
+        application records. It is not a medical diagnosis or
+        a recommendation to change medication or dosage.
+        Clinical decisions should be made by a qualified
+        healthcare professional.
+      </p>
+    `;
+
+          report.hidden = false;
+          status.textContent = "Live doctor report generated successfully.";
+        } catch (error) {
+          console.error("Doctor report error:", error);
+          status.textContent =
+            "Could not generate report. Check the backend server.";
+        }
       }
+
       document
         .getElementById("generateFullReport")
-        .addEventListener("click", () => {
-          generateCompleteDoctorReport();
-          showToast("Complete doctor report generated");
+        .addEventListener("click", async () => {
+          await generateCompleteDoctorReport();
+
+          if (!document.getElementById("generatedReport").hidden) {
+            showToast("Live doctor report generated");
+          }
         });
+
       document
         .getElementById("printFullReport")
-        .addEventListener("click", () => {
-          if (document.getElementById("generatedReport").hidden)
-            generateCompleteDoctorReport();
-          window.print();
+        .addEventListener("click", async () => {
+          if (document.getElementById("generatedReport").hidden) {
+            await generateCompleteDoctorReport();
+          }
+
+          if (!document.getElementById("generatedReport").hidden) {
+            window.print();
+          }
         });
 
       document.getElementById("doctorReport").addEventListener("click", () => {
@@ -2196,6 +2284,164 @@
           " skipped. You can discuss these results with your healthcare professional.";
         showToast("Doctor summary generated");
       });
+
+      async function loadWeeklyAdherence() {
+        try {
+          const response = await fetch("/api/weekly-adherence");
+
+          if (!response.ok) {
+            throw new Error("Failed to load weekly adherence");
+          }
+
+          const data = await response.json();
+          const chartColumns = document.querySelectorAll(".chart-col");
+
+          data.days.forEach((day, index) => {
+            const column = chartColumns[index];
+
+            if (!column) return;
+
+            column.querySelector("b").textContent = `${day.adherence}%`;
+
+            column.querySelector(".chart-bar").style.height =
+              `${day.adherence}%`;
+
+            column.querySelector("span").textContent = day.day;
+          });
+        } catch (error) {
+          console.error("Weekly adherence error:", error);
+        }
+      }
+
+      loadWeeklyAdherence();
+
+      async function loadRefillStatus() {
+        const container = document.getElementById("refill-list");
+
+        try {
+          const response = await fetch("/api/refill-status");
+          if (!response.ok) throw new Error("Could not load refill data");
+
+          const medicines = await response.json();
+
+          container.innerHTML = "";
+
+          medicines.forEach((medicine) => {
+            const card = document.createElement("div");
+            const days = medicine.days_remaining;
+
+            let statusClass = "done";
+            let progressWidth = 0;
+
+            if (days === null) {
+              statusClass = "due";
+            } else if (days <= 3) {
+              statusClass = "due";
+              progressWidth = 10;
+            } else if (days <= 7) {
+              statusClass = "due";
+              progressWidth = 25;
+            } else {
+              progressWidth = Math.min((days / 30) * 100, 100);
+            }
+
+            const row = document.createElement("div");
+            row.className = "list-row";
+
+            const left = document.createElement("div");
+            left.className = "med-left";
+
+            const icon = document.createElement("span");
+            icon.className = "med-icon";
+            icon.textContent = "💊";
+
+            const details = document.createElement("div");
+            const name = document.createElement("div");
+            name.className = "med-name";
+            name.textContent = medicine.name;
+
+            const meta = document.createElement("div");
+            meta.className = "med-meta";
+            meta.textContent =
+              days === null ? "Stock not entered" : `${days} days remaining`;
+
+            details.append(name, meta);
+            left.append(icon, details);
+
+            const status = document.createElement("span");
+            status.className = `status ${statusClass}`;
+            status.textContent = medicine.refill_status;
+
+            row.append(left, status);
+
+            const progress = document.createElement("div");
+            progress.className = "progress";
+
+            const bar = document.createElement("span");
+            bar.style.width = `${progressWidth}%`;
+
+            progress.appendChild(bar);
+
+            const quantity = document.createElement("input");
+            quantity.type = "number";
+            quantity.min = "0";
+            quantity.placeholder = "Remaining quantity";
+
+            const daily = document.createElement("input");
+            daily.type = "number";
+            daily.min = "0.01";
+            daily.step = "0.01";
+            daily.placeholder = "Daily doses";
+
+            const save = document.createElement("button");
+            save.textContent = "Save stock";
+            save.type = "button";
+
+            save.addEventListener("click", async () => {
+              const stock = {
+                quantity_remaining: Number(quantity.value),
+                daily_doses: Number(daily.value),
+              };
+
+              if (
+                quantity.value === "" ||
+                daily.value === "" ||
+                !Number.isInteger(stock.quantity_remaining) ||
+                stock.quantity_remaining < 0 ||
+                !Number.isFinite(stock.daily_doses) ||
+                stock.daily_doses <= 0
+              ) {
+                alert("Enter a valid quantity and daily dose count.");
+                return;
+              }
+
+              const result = await fetch(
+                `/api/medicines/${medicine.id}/stock`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(stock),
+                },
+              );
+
+              if (!result.ok) {
+                alert("Could not save stock.");
+                return;
+              }
+
+              loadRefillStatus();
+            });
+
+            card.append(row, progress, quantity, daily, save);
+            container.appendChild(card);
+          });
+        } catch (error) {
+          console.error("Refill tracker error:", error);
+          container.textContent = "Unable to load refill information.";
+        }
+      }
+
+      loadRefillStatus();
     </script>
   </body>
 </html>
