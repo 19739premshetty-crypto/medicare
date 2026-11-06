@@ -2018,35 +2018,56 @@
           }
         });
       });
-      function renderMissReasons() {
-        const counts = {
-          Forgot: 2,
-          "Side effects": 1,
-          "Ran out": 0,
-          "Felt fine": 0,
-          "Away from home": 0,
-          Other: 0,
-        };
-        skippedReasons.forEach(
-          (x) => (counts[x.reason] = (counts[x.reason] || 0) + 1),
-        );
-        const max = Math.max(1, ...Object.values(counts));
-        document.getElementById("missReasons").innerHTML = Object.entries(
-          counts,
-        )
-          .filter(([k, v]) => v > 0)
-          .map(
-            ([k, v]) =>
-              '<div class="reason-line"><header><span>' +
-              k +
-              "</span><b>" +
-              v +
-              '</b></header><div class="reason-track"><span style="width:' +
-              Math.round((v / max) * 100) +
-              '%"></span></div></div>',
-          )
-          .join("");
+      async function renderMissReasons() {
+        const container = document.getElementById("missReasons");
+
+        try {
+          const response = await fetch("/api/analytics");
+          if (!response.ok) throw new Error("Analytics unavailable");
+
+          const data = await response.json();
+          const counts = data.missed_doses.reason_breakdown || {};
+          const entries = Object.entries(counts).filter(
+            ([reason, count]) => count > 0,
+          );
+
+          container.innerHTML = "";
+
+          if (entries.length === 0) {
+            container.textContent = "No missed-dose reasons recorded";
+            return;
+          }
+
+          const max = Math.max(...entries.map(([, count]) => count));
+
+          entries.forEach(([reason, count]) => {
+            const line = document.createElement("div");
+            line.className = "reason-line";
+
+            const header = document.createElement("header");
+            const name = document.createElement("span");
+            const total = document.createElement("b");
+
+            name.textContent = reason;
+            total.textContent = count;
+            header.append(name, total);
+
+            const track = document.createElement("div");
+            track.className = "reason-track";
+
+            const bar = document.createElement("span");
+            bar.style.width = Math.round((count / max) * 100) + "%";
+
+            track.appendChild(bar);
+            line.append(header, track);
+            container.appendChild(line);
+          });
+        } catch (error) {
+          container.textContent = "Unable to load missed-dose analytics";
+          console.error(error);
+        }
       }
+      renderMissReasons();
       document.querySelectorAll(".toggle").forEach((toggle) =>
         toggle.addEventListener("click", () => {
           const on = toggle.getAttribute("aria-checked") === "true";
